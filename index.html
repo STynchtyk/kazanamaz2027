@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каза намаз 2027</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600&display=swap">
+  <style>
+    :root{
+      --bg:#eef2f0; --surface:#ffffff; --ink:#15231f; --muted:#5d6f69; --line:#d5dfdb;
+      --accent:#1f7a5c; --gold:#b98a2b; --warn:#b5473a;
+      --display:"Unbounded","Onest",system-ui,sans-serif;
+      --body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    @media (prefers-color-scheme:dark){:root{
+      --bg:#0d1614; --surface:#15211e; --ink:#e6efeb; --muted:#93a7a0; --line:#263632;
+      --accent:#4fbf95; --gold:#d9ae55; --warn:#e07a6c; color-scheme:dark}}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+    .wrap{max-width:520px;margin:0 auto;padding:20px 16px 40px;display:flex;flex-direction:column;gap:18px}
+    .num{font-variant-numeric:tabular-nums}
+    .label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .debt{display:flex;flex-direction:column;gap:12px}
+    .debt-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .big{font-family:var(--display);font-weight:700;font-size:clamp(40px,12vw,56px);line-height:1}
+    .big small{font-family:var(--body);font-size:15px;font-weight:500;color:var(--muted);margin-left:6px}
+    .pace{text-align:right}
+    .pace b{font-family:var(--display);font-size:22px;color:var(--accent)}
+    .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+    .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
+    .chips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .chip{display:flex;flex-direction:column;align-items:center;padding:8px 2px;border-radius:10px;background:var(--surface);border:1px solid var(--line);min-width:0}
+    .chip span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .chip b{font-size:16px}
+    .daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .daynav h2{margin:0;font-family:var(--display);font-weight:500;font-size:17px;text-align:center}
+    .daynav .sub{display:block;font-family:var(--body);font-size:13px;color:var(--muted);font-weight:400}
+    .navbtn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:20px;cursor:pointer}
+    .navbtn:disabled{opacity:.35;cursor:default}
+    .list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+    .row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:14px;border-top:1px solid var(--line)}
+    .row:first-child{border-top:0}
+    .fard{width:30px;height:30px;border-radius:9px;border:2px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;color:transparent;font-size:17px;padding:0}
+    .fard[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+    .pname{min-width:0}
+    .pname b{display:block;font-weight:600;font-size:16px}
+    .pname span{font-size:12px;color:var(--muted)}
+    .kz{display:flex;align-items:center;gap:6px}
+    .pip{width:26px;height:26px;border-radius:50%;border:2px solid var(--gold);background:transparent;cursor:pointer;padding:0}
+    .pip.on{background:var(--gold)}
+    .extra{min-width:28px;text-align:center;font-weight:600;color:var(--gold);font-size:14px}
+    .step{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:0}
+    .daysum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+    .daysum b{color:var(--ink)}
+    .done{color:var(--accent)!important}
+    .note{font-size:13px;color:var(--muted);margin:0}
+    .status{font-size:12px;color:var(--muted);text-align:center}
+    .status.err{color:var(--warn)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="debt">
+      <div class="debt-top">
+        <div>
+          <div class="label">Осталось каза · 26.08.2023–31.12.2025</div>
+          <div class="big num" id="left">4295<small>из 4295</small></div>
+        </div>
+        <div class="pace">
+          <div class="label">В день до 31.12.2027</div>
+          <b class="num" id="pace">12</b>
+        </div>
+      </div>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <div class="daynav">
+      <button class="navbtn" id="prev">‹</button>
+      <h2 id="dayTitle">—</h2>
+      <button class="navbtn" id="next">›</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <div class="daysum">
+      <span>Фарз за день: <b class="num" id="sumF">0/5</b></span>
+      <span>Каза за день: <b class="num" id="sumK">0/15</b></span>
+    </div>
+    <p class="note">Квадрат — текущий намаз. Три кружка — каза этого намаза. «+» добавляет каза сверх трёх, «−» убирает.</p>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const P=[{k:"fajr",n:"Багымдат"},{k:"dhuhr",n:"Бешим"},{k:"asr",n:"Аср"},{k:"maghrib",n:"Шам"},{k:"isha",n:"Куптан"}];
+    const START={fajr:859,dhuhr:859,asr:859,maghrib:859,isha:859};
+    const TOTAL=4295, FIRST="2027-01-01", END="2027-12-31";
+    const KEY="kaza-2027";
+    const MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+    const WD=["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
+
+    const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    const parse=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+    const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+    const today=()=>iso(new Date());
+    const $=id=>document.getElementById(id);
+
+    let days={};
+    try{days=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+    let cur=today()<FIRST?FIRST:(today()>END?END:today());
+
+    function day(id){return days[id]||{cur:{},qz:{}}}
+
+    function totals(){
+      const done={fajr:0,dhuhr:0,asr:0,maghrib:0,isha:0}, newMiss={...done};
+      const t=today();
+      for(const[id,d]of Object.entries(days)){
+        for(const p of P){
+          done[p.k]+=Number(d.qz?.[p.k]||0);
+          if(id<t && id>=FIRST && !d.cur?.[p.k]) newMiss[p.k]++;
+        }
+      }
+      const left={};let sum=0;
+      for(const p of P){left[p.k]=Math.max(0,START[p.k]+newMiss[p.k]-done[p.k]);sum+=left[p.k]}
+      return{left,sum,newMiss:Object.values(newMiss).reduce((a,b)=>a+b,0)};
+    }
+
+    function render(){
+      const{left,sum,newMiss}=totals();
+      const base=TOTAL+newMiss;
+      $("left").innerHTML=sum+"<small>из "+base+"</small>";
+      $("bar").style.width=(base?((base-sum)/base*100):0)+"%";
+      const t=today()<FIRST?FIRST:today();
+      const remainingDays=Math.max(1,Math.round((parse(END)-parse(t))/864e5)+1);
+      $("pace").textContent=sum===0?"готово":Math.ceil(sum/remainingDays);
+      $("chips").innerHTML=P.map(p=>`<div class="chip"><span>${p.n}</span><b class="num">${left[p.k]}</b></div>`).join("");
+
+      const d=parse(cur);
+      $("dayTitle").innerHTML=`${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}<span class="sub">${cur===today()?"сегодня":WD[d.getDay()]}</span>`;
+      $("prev").disabled=cur<=FIRST; $("next").disabled=cur>=END;
+
+      const dd=day(cur);let f=0,k=0;
+      $("list").innerHTML=P.map(p=>{
+        const on=!!dd.cur?.[p.k]; const q=Number(dd.qz?.[p.k]||0);
+        if(on)f++; k+=q;
+        const pips=[0,1,2].map(i=>`<button class="pip${q>i?" on":""}" data-q="${p.k}" data-v="${i+1}"></button>`).join("");
+        return `<div class="row">
+          <button class="fard" data-f="${p.k}" aria-pressed="${on}">✓</button>
+          <div class="pname"><b>${p.n}</b><span>${on?"прочитан":"текущий"} · каза ${q}</span></div>
+          <div class="kz"><button class="step" data-d="${p.k}" data-v="-1">−</button>${pips}<span class="extra num">${q>3?"+"+(q-3):""}</span><button class="step" data-d="${p.k}" data-v="1">+</button></div>
+        </div>`}).join("");
+      $("sumF").textContent=f+"/5"; $("sumF").classList.toggle("done",f===5);
+      $("sumK").textContent=k+"/15"; $("sumK").classList.toggle("done",k>=15);
+    }
+
+    function save(){
+      try{localStorage.setItem(KEY,JSON.stringify(days));$("status").textContent="Сохранено"}
+      catch(e){$("status").textContent="Не удалось сохранить";$("status").classList.add("err")}
+    }
+
+    $("list").addEventListener("click",e=>{
+      const b=e.target.closest("button");if(!b)return;
+      const d=JSON.parse(JSON.stringify(day(cur)));
+      if(b.dataset.f){const k=b.dataset.f;d.cur[k]=!d.cur[k]}
+      else if(b.dataset.q){const k=b.dataset.q,v=Number(b.dataset.v),q=Number(d.qz[k]||0);d.qz[k]=(q===v?v-1:v)}
+      else if(b.dataset.d){const k=b.dataset.d;d.qz[k]=Math.max(0,Number(d.qz[k]||0)+Number(b.dataset.v))}
+      days[cur]=d;render();save();
+    });
+    $("prev").onclick=()=>{cur=addDays(cur,-1);render()};
+    $("next").onclick=()=>{cur=addDays(cur,1);render()};
+
+    render();
+  </script>
+</body>
+</html>
